@@ -1,8 +1,11 @@
 ---
+- name: Create target directory
+  file: path=./CFGS state=directory mode=0755
+
 - name: Generate configuration files
-  template: src=router-881.j2 dest=/home/msilvestrini/ANSIBLE/CFGS/{{ item.hostname }}.txt
+  template: src=router-881.j2 dest=./CFGS/{{ item.hostname }}.txt
   with_items: "{{ routers_881 }}"
 
 - name: Generate configuration files
-  template: src=router-1921.j2 dest=/home/msilvestrini/ANSIBLE/CFGS/{{ item.hostname }}.txt
+  template: src=router-1921.j2 dest=./CFGS/{{ item.hostname }}.txt
   with_items: "{{ routers_1921 }}"
