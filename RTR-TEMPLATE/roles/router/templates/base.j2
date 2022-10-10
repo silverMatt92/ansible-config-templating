@@ -1,0 +1,31 @@
+no service pad
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+!
+hostname {{item.hostname}}
+
+{% block interfaces %}
+{% endblock %}
+!  
+no ip http server
+no ip http secure-server
+!
+!
+{% block nat %}
+{% endblock %}
+ip route 0.0.0.0 0.0.0.0 {{item.public_gateway}}
+
+line vty 0 4
+ exec-timeout 20 0
+ logging synchronous
+ transport input ssh
+ transport output ssh
+!
+ntp update-calendar
+ntp server 1.1.1.1
+ntp server 2.2.2.2
+end
+
