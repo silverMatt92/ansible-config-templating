@@ -4,9 +4,32 @@ service tcp-keepalives-out
 service timestamps debug datetime msec localtime show-timezone
 service timestamps log datetime msec localtime show-timezone
 service password-encryption
+service sequence-numbers
+service call-home
+platform punt-keepalive disable-kernel-core
 !
-hostname {{item.hostname}}
-
+hostname {{ item.hostname }}
+!
+!
+vrf definition Mgmt-vrf
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+ exit-address-family
+!
+logging buffered 1000000
+logging console critical
+!
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authorization exec default local 
+aaa authorization network default local 
+!
+!
 {% block interfaces %}
 {% endblock %}
 !  
@@ -16,16 +39,37 @@ no ip http secure-server
 !
 {% block nat %}
 {% endblock %}
-ip route 0.0.0.0 0.0.0.0 {{item.public_gateway}}
-
-line vty 0 4
- exec-timeout 20 0
- logging synchronous
- transport input ssh
- transport output ssh
 !
-ntp update-calendar
-ntp server 1.1.1.1
-ntp server 2.2.2.2
+!
+ip route 0.0.0.0 0.0.0.0 {{ item.public_gateway }}
+!
+!
+line con 0
+ stopbits 1
+line aux 0
+line vty 0
+ exec-timeout 5 0
+ length 0
+ transport input ssh
+ transport output telnet ssh
+line vty 1 4
+ transport input ssh
+line vty 5 15
+ transport input ssh
+!
+!
+call-home
+ ! If contact email address in call-home is configured as sch-smart-licensing@cisco.com
+ ! the email address configured in Cisco Smart License Portal will be used as contact email address to send SCH notifications.
+ contact-email-addr sch-smart-licensing@cisco.com
+ profile "CiscoTAC-1"
+  active
+  destination transport-method http
+!
+!
+ntp server 108.61.189.74 prefer
+ntp server 37.97.195.195 minpoll 8
+!
+!
 end
 
